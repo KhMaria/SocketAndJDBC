@@ -4,6 +4,7 @@ import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.sql.Date;
+import java.util.UUID;
 
 public class SimpleOracleExample {
     private Connection connection;
@@ -13,66 +14,51 @@ public class SimpleOracleExample {
     }
 
     public void selectExample() throws SQLException {
-        String query = "SELECT * FROM emp";
+        String query = "SELECT * FROM users";
         Statement stmt = connection.createStatement();
         ResultSet resultSet = stmt.executeQuery(query);
         while (resultSet.next()) {
-            int empno = resultSet.getInt("empno");
-            String ename = resultSet.getString("ename");
-            String job = resultSet.getString("job");
-            int mgr = resultSet.getInt("mgr");
-            Date date = resultSet.getDate("hiredate");
-            System.out.println("Employee " + empno + " " + ename + " " + job + " " + mgr + " " + date);
+            String userId = resultSet.getString("user_id");
+            String firstName = resultSet.getString("first_name");
+            String lastName = resultSet.getString("last_name");
+            Integer age = resultSet.getInt("age");
+            System.out.println(String.format("User [%s, %s %s, %d]", userId, firstName, lastName, age));
         }
         System.out.println("--- ALL ROWS ARE FETCHED ---");
     }
 
     public void insertExample() throws SQLException {
-        try {
-            String query = "INSERT INTO pers (pers_id, depart_id, firstname, lastname, middlename, hire_date, salary)" +
-                    " VALUES (121, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO users (user_id, first_name, last_name, age) VALUES (?, ?, ?, ?)";
 
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, 1);
-            preparedStatement.setString(2, "Jhon");
-            preparedStatement.setString(3, "Snow");
-            preparedStatement.setString(4, "Petrovich");
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1, UUID.randomUUID().toString());
+        preparedStatement.setString(2, "Jhon");
+        preparedStatement.setString(3, "Snow");
+        preparedStatement.setInt(4, 100);
 
-            String strDate = "13.08.06";
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yy");
-            java.util.Date date = simpleDateFormat.parse(strDate);
-            java.sql.Date sqlDate = new Date(date.getTime());
-            preparedStatement.setDate(5, sqlDate);
-
-            preparedStatement.setInt(6, 15000);
-
-            preparedStatement.execute();
-            System.out.println("--- INSERTED 1 ROW ---");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        preparedStatement.execute();
+        System.out.println("--- INSERTED 1 ROW ---");
 
     }
 
     public void updateExample() throws SQLException {
-        String query = "UPDATE pers SET depart_id = ?, firstname = ?, lastname = ? WHERE pers_id = ?";
+        String query = "UPDATE users SET first_name = ?, last_name = ?, age = ? WHERE user_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setInt(1, 2);
-        preparedStatement.setString(2, "Arthas");
-        preparedStatement.setString(3, "Menethil");
-        preparedStatement.setInt(4, 121);
+        preparedStatement.setString(1, "Arthas");
+        preparedStatement.setString(2, "Menethil");
+        preparedStatement.setInt(3, 200);
+        preparedStatement.setString(4, "3cc3ba0d-e823-4267-959c-678a28a1fa4a");
 
         preparedStatement.execute();
         System.out.println("--- UPDATED 1 ROW ---");
     }
 
     public void deleteExample() throws SQLException {
-        String query = "DELETE FROM pers WHERE pers_id = ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setInt(1, 121);
-        preparedStatement.execute();
-        System.out.println("--- DELETED 1 ROW ---");
+        String query = "DELETE FROM users";
+        Statement statement = connection.createStatement();
+        statement.execute(query);
+        System.out.println("--- DELETED ALL ROWS ---");
     }
 
     public void autoCommitExample() {
@@ -80,22 +66,12 @@ public class SimpleOracleExample {
             System.out.println("--- SET AUTO-COMMIT to FALSE! ---");
             connection.setAutoCommit(false);
             insertExample();
-            String query = "INSERT INTO pers (pers_id, depart_id, firstname, lastname, middlename, hire_date, salary)" +
-                    " VALUES (125, ?, ?, ?, ?, ?, ?)";
 
+            String query = "INSERT INTO users (first_name123, last_name123, age123) VALUES (?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, 1);
-            preparedStatement.setString(2, "Jhon");
-            preparedStatement.setString(3, "Snow");
-            preparedStatement.setString(4, "Petrovich");
-
-            String strDate = "13.08.06";
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yy");
-            java.util.Date date = simpleDateFormat.parse(strDate);
-            java.sql.Date sqlDate = new Date(date.getTime());
-            preparedStatement.setDate(5, sqlDate);
-
-            preparedStatement.setInt(6, 15000);
+            preparedStatement.setString(1, "Jhon123");
+            preparedStatement.setString(2, "Snow123");
+            preparedStatement.setInt(3, 100);
 
             preparedStatement.execute();
             connection.commit();
@@ -106,8 +82,6 @@ public class SimpleOracleExample {
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
-        }catch (ParseException e) {
-            e.printStackTrace();
         }
     }
 }

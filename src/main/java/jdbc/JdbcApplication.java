@@ -16,7 +16,7 @@ public class JdbcApplication {
         simpleOracleExample.insertExample();
         simpleOracleExample.updateExample();
         simpleOracleExample.deleteExample();
-        //simpleOracleExample.autoCommitExample();
+        simpleOracleExample.autoCommitExample();
 
         PostgresDriverManager driverManager = new PostgresDriverManager();
         //Connection connection = driverManager.openPostgresConnection();
